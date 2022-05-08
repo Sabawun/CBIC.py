@@ -13,8 +13,6 @@ CATEGORIES = ["airplanes", "bonsai", "chair", "ewer", "faces", "flamingo", "guit
               "starfish"]
 
 
-#######################################################################################################################
-
 class DataSet:
 
     def create_data(self, folder):  # data set created, image pixel values are used as features.
@@ -53,7 +51,6 @@ class DataSet:
         return Images, Labels
 
 
-#######################################################################################################################
 class KNearN:
     # The function returns a KNN model as well as the accuracy score against the validation set
     def knn(self, training_Images, training_Labels, validation_Images, validation_Labels, neighbours):
@@ -63,53 +60,60 @@ class KNearN:
         return KNN, score
 
 
-#############################################################################################################
-
 class CBIC:
 
     def start(self):
-        y_points = []
-        x_points = []
         training_data, training_labels = DataSet.create_data(self, Train)  # Creating Training Set
         # print(training_data.shape) # size is 787x12288
-        # testing_data, testing_labels = DataSet.create_data(self,
-        #                                                   Test)  # Creating Testing Set (though this is not required)
+        testing_data, testing_labels = DataSet.create_data(self,
+                                                           Test)  # Creating Testing Set (though this is not required)
         # print(testing_data.shape) # size is 105x12288
         validation_data, validation_labels = DataSet.create_data(self, Validation)  # Creating Validation Set
         # print(validation_data.shape) # size is 105x12288
+        plot_name = "training against validation"
+        print("Score for K with Validation Set")
+        CBIC.plot(self, training_data, training_labels, validation_data, validation_labels, plot_name)
+        plot_name = "training against testing"
+        print("")
+        print("Score for K with Testing Set")  # Even though this is not needed since this set should be only used
+        # for predicting user query
+        CBIC.plot(self, training_data, training_labels, testing_data, testing_labels, plot_name)
+        print("")
+        CBIC.best(self, training_data, training_labels, validation_data, validation_labels)  # calling function with the
+        # best K value to do prediction
+
+    def plot(self, X_train, y_train, X_test, y_test, plot_name):
+        y_points = []
+        x_points = []
         neighbours = 1
         for i in range(5):  # K values are 1,3,5,7,9
-            KNN, score = KNearN.knn(self, training_data, training_labels, validation_data, validation_labels,
-                                    neighbours)
+            KNN, score = KNearN.knn(self, X_train, y_train, X_test, y_test, neighbours)
             print("Score for K=" + str(neighbours) + " is : " + str(score))
-
             y_points.append(score)
             x_points.append(neighbours)
-
             neighbours = neighbours + 2
         # plotting accuracy against k values
         y_points = np.array(y_points)
         x_points = np.array(x_points)
 
         plt.plot(x_points, y_points)
-        plt.title('Accuracy for K - Values')
+        plt.title(plot_name)
         plt.xlabel('K Value')
         plt.ylabel('Accuracy %')
         plt.show()
-
-        CBIC.best(self, training_data, training_labels, validation_data, validation_labels)  # calling function with the
-        # best K value to do prediction
 
     def best(self, training_data, training_labels, validation_data, validation_labels):
         N = 3  # This gave the best result (Maybe a better way to do this automatically,
         # but outside scope of this assignment)
         KNN, score = KNearN.knn(self, training_data, training_labels, validation_data, validation_labels,
                                 N)
-        print("Best Score is for K=" + str(N) + " which is : " + str(score))
+        print("Best Score on both validation & testing is for K=" + str(N) + " which is : " + str(score) +
+              " on the validation set")
 
         CBIC.pred(self, KNN)  # for user query
 
     def pred(self, KNN):
+        print("")
         print("Please copy the (absolute) path of the testing image you would like to run the prediction on or press "
               "q to quit: ")
         path = input()
