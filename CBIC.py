@@ -44,7 +44,7 @@ class DataSet:
 
         Images = np.array(Images)
 
-        Images = Images / 255.0 # Normalizing values between 0-1
+        Images = Images / 255.0  # Normalizing values between 0-1
         Images = np.array(Images)
         Labels = np.array(Labels)
 
@@ -68,11 +68,11 @@ class KNearN:
 class CBIC:
 
     def start(self):
-        ypoints = []
-        xpoints = []
+        y_points = []
+        x_points = []
         training_data, training_labels = DataSet.create_data(self, Train)  # Creating Training Set
         # print(training_data.shape) # size is 787x12288
-        #testing_data, testing_labels = DataSet.create_data(self,
+        # testing_data, testing_labels = DataSet.create_data(self,
         #                                                   Test)  # Creating Testing Set (though this is not required)
         # print(testing_data.shape) # size is 105x12288
         validation_data, validation_labels = DataSet.create_data(self, Validation)  # Creating Validation Set
@@ -83,15 +83,15 @@ class CBIC:
                                     neighbours)
             print("Score for K=" + str(neighbours) + " is : " + str(score))
 
-            ypoints.append(score)
-            xpoints.append(neighbours)
+            y_points.append(score)
+            x_points.append(neighbours)
 
             neighbours = neighbours + 2
         # plotting accuracy against k values
-        ypoints = np.array(ypoints)
-        xpoints = np.array(xpoints)
+        y_points = np.array(y_points)
+        x_points = np.array(x_points)
 
-        plt.plot(xpoints, ypoints)
+        plt.plot(x_points, y_points)
         plt.title('Accuracy for K - Values')
         plt.xlabel('K Value')
         plt.ylabel('Accuracy %')
@@ -116,7 +116,8 @@ class CBIC:
         while path != "q":
             test_image = cv2.imread(path)
             resize_array = cv2.resize(test_image, (64, 64))  # can be 120x120 if training set is 120x120
-            resize_array = resize_array.reshape(-1, 12288) # should be 43200 if image size is 120x120
+            resize_array = resize_array.reshape(-1, 12288)  # should be 43200 if image size is 120x120
+            resize_array = resize_array / 255.0
             print(CATEGORIES[int(KNN.predict(resize_array))])  # prints the name of the predicted category
             print(
                 "Please copy the (absolute) path of the testing image you would like to run the prediction on or "
